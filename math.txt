@@ -1,0 +1,49 @@
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// GCC provides __builtin_clz; using CLZ on ARM, BSR in Intel, etc
+//   Returns the number of leading 0-bits in x, starting at the most significant
+//   bit position. If x is 0, the result is undefined. Example:
+// #define LOG2(X) ((uint8_t) (8*sizeof (unsigned int) - __builtin_clz((X)) - 1))
+
+// another alternative:      if(value<0x0100) value<<8; else e+=8;
+//                           if(value<0x1000) value<<4; else e+=4; etc.....
+// basically this: https://stackoverflow.com/questions/994593/how-to-do-an-integer-log2-in-c
+/*
+uint8_t log2_64(uint64_t n)
+{
+  #define S(k) if (n >= (UINT64_C(1) << k)) { i += k; n >>= k; }
+  int i = 0;
+  S(32); S(16); S(8); S(4); S(2); S(1);
+  return i;
+  #undef S
+}
+uint8_t log10_64(uint64_t n)
+{
+  #define S(k, m) if (n >= UINT64_C(m)) { i += k; n /= UINT64_C(m); }
+  int i = 0;
+  S(16,10000000000000000); S(8,100000000); S(4,10000); S(2,100); S(1,10);
+  return i;
+  #undef S
+}
+*/
+
+
+// or this:
+// see https://stackoverflow.com/questions/11376288/fast-computing-of-log2-for-64-bit-integers
+/*
+const uint8_t tab32[32] = {
+     0,  9,  1, 10, 13, 21,  2, 29, 11, 14, 16, 18, 22, 25,  3, 30,
+     8, 12, 20, 28, 15, 17, 24,  7, 19, 27, 23,  6, 26,  5,  4, 31};
+
+int log2_32 (uint32_t value)
+{
+    value |= value >> 1;
+    value |= value >> 2;
+    value |= value >> 4;
+    value |= value >> 8;
+    value |= value >> 16;
+    return tab32[(uint32_t)(value*0x07C4ACDD) >> 27];
+}
+*/
